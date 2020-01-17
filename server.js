@@ -4,7 +4,7 @@ var express     = require('express');
 var bodyParser  = require('body-parser');
 var expect      = require('chai').expect;
 var cors        = require('cors');
-
+var helmet      = require('helmet');
 var apiRoutes         = require('./routes/api.js');
 var fccTestingRoutes  = require('./routes/fcctesting.js');
 var runner            = require('./test-runner');
@@ -18,6 +18,8 @@ app.use(cors({origin: '*'})); //For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use(helmet.noSniff());
+app.use(helmet.xssFilter());
 //Index page (static HTML)
 app.route('/')
   .get(function (req, res) {
@@ -29,7 +31,12 @@ fccTestingRoutes(app);
 
 //Routing for API 
 apiRoutes(app);  
-    
+
+app.get('/test', function(req, res) {
+  res.json({test: 1});
+});
+
+
 //404 Not Found Middleware
 app.use(function(req, res, next) {
   res.status(404)
